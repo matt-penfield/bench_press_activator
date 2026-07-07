@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leader Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+</head>
+<body>
+  <header class="top-bar">
+    <h1 class="app-title">Leader Dashboard</h1>
+  </header>
+
+  <main class="dashboard">
+    <section class="leader-profile">
+      <div class="profile-card">
+        <div class="avatar">
+          <span class="material-symbols-outlined">person</span>
+        </div>
+        <div class="profile-info">
+          <h2 class="leader-name">Alex Morgan</h2>
+          <p class="leader-role">Delivery Lead</p>
+          <p class="leader-market">Seattle Market</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="team-section">
+      <h2 class="section-title">My Team by Persona</h2>
+      <table class="team-table" id="team-table">
+        <thead>
+          <tr>
+            <th data-sort="name">Name <span class="sort-icon"></span></th>
+            <th data-sort="market">Market <span class="sort-icon"></span></th>
+            <th data-sort="persona">Dominant Persona <span class="sort-icon"></span></th>
+            <th data-sort="secondaryPersona">Secondary Persona <span class="sort-icon"></span></th>
+          </tr>
+        </thead>
+        <tbody id="team-tbody"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <!-- Survey Detail Modal -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <button class="modal-close" id="modal-close">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+      <div class="modal-header">
+        <h2 id="modal-name"></h2>
+        <span class="persona-badge" id="modal-persona"></span>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
