@@ -1,0 +1,118 @@
+# Bench Press Activator — Leader Dashboard
+
+A lightweight, static dashboard that lets leaders at a digital agency view their team members grouped by survey-assigned persona (from the "Activator" framework). Built as a zero-dependency prototype — no build tools, no frameworks, just HTML + CSS + vanilla JS.
+
+---
+
+## What It Does
+
+- Displays a **leader profile card** (name, role, market)
+- Shows a **sortable team table** — click any column header to sort by name, market, or persona
+- Each team member has a **dominant persona** and a **secondary persona** (Confidant, Activator, Realist, Debater, Expert)
+- Click any row to open a **detail modal** showing:
+  - Dimension scores (bar chart visualization across 5 survey dimensions)
+  - Persona explanation
+  - **Suggested pairings** — complementary teammates with rationale
+
+---
+
+## File Structure
+
+```
+├── index.html      # App shell — header, table, modal markup
+├── app.js          # All logic: data, sorting, modal rendering, pairing engine
+├── styles.css      # Full styling including table, badges, modal, bar charts
+├── styleguide.md   # Slalom brand reference (colors, typography, spacing)
+├── BRIEF.md        # Original product brief / requirements
+└── README          # This file
+```
+
+---
+
+## Running Locally
+
+No install needed. Open `index.html` in a browser:
+
+```bash
+# macOS / Linux
+open index.html
+
+# Windows
+start index.html
+
+# Or use VS Code Live Server, Python http.server, etc.
+python -m http.server 8000
+```
+
+---
+
+## Key Architecture Decisions
+
+| Decision | Rationale |
+|----------|-----------|
+| Static HTML (no framework) | Fast prototyping, zero build step, easy to share |
+| Data hardcoded in `app.js` | Swap the `teamMembers` array for an API call when ready |
+| Persona colors via `data-persona` attribute | CSS handles all color mapping — add new personas by adding a CSS rule |
+| Survey scores generated with seeded randomness | Consistent within a session, demonstrates the UI without real data |
+| Pairing logic in JS | Complementary persona mapping lives in `pairingRationale` — easy to tune |
+
+---
+
+## Porting Guide
+
+### Connecting to Real Data
+
+Replace the `teamMembers` array at the top of `app.js` with a fetch call. Expected shape per member:
+
+```js
+{
+  name: "string",
+  market: "string",
+  persona: "Confidant" | "Activator" | "Realist" | "Debater" | "Expert",
+  secondaryPersona: "Confidant" | "Activator" | "Realist" | "Debater" | "Expert",
+  surveyResults: {          // optional — generated if missing
+    trust: number,          // 1–10
+    empathy: number,
+    challenge: number,
+    expertise: number,
+    action: number,
+  }
+}
+```
+
+### Adding / Changing Personas
+
+1. Add the new persona name to the `personas` array in `app.js`
+2. Add a color entry to `personaColors` in `app.js`
+3. Add a CSS rule: `.persona-badge[data-persona="NewName"] { background: #HEX; }`
+4. Add pairing rationale in `pairingRationale`
+
+### Changing the Leader Profile
+
+Edit the hardcoded HTML in `index.html` (`.leader-profile` section), or pull from an API.
+
+### Adapting the Style
+
+The app follows the Slalom brand guide documented in `styleguide.md`. Key tokens:
+- **Primary blue:** `#0C62FB`
+- **Dark navy (header):** `#001B36`
+- **Font:** Inter (loaded from Google Fonts CDN)
+- **Persona colors:** blue, orange, cyan, magenta, purple
+
+### Deploying
+
+Since it's fully static, deploy anywhere:
+- **GitHub Pages** — push and enable in repo settings
+- **Vercel / Netlify** — drop the folder, no config needed
+- **SharePoint** — upload as a static site
+
+---
+
+## Dependencies
+
+| Dependency | Source | Purpose |
+|------------|--------|---------|
+| Inter font | Google Fonts CDN | Typography |
+| Material Symbols Outlined | Google Fonts CDN | Icons (person, close) |
+
+No npm packages. No build step. No runtime dependencies.
