@@ -6,14 +6,14 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  background: #f4f5f7;
-  color: #1a1a2e;
+  background: #F4F5F7;
+  color: #001B36;
   min-height: 100vh;
 }
 
 /* Top Bar */
 .top-bar {
-  background: #1a1a2e;
+  background: #001B36;
   color: #fff;
   padding: 16px 32px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
@@ -50,7 +50,7 @@ body {
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: #e0e7ff;
+  background: #E6F0FF;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -58,7 +58,7 @@ body {
 
 .avatar .material-symbols-outlined {
   font-size: 32px;
-  color: #4f46e5;
+  color: #0C62FB;
 }
 
 .leader-name {
@@ -94,13 +94,13 @@ body {
   width: 100%;
   border-collapse: collapse;
   background: #fff;
-  border-radius: 12px;
+  border-radius: 0;
   overflow: hidden;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
 .team-table thead {
-  background: #1a1a2e;
+  background: #0C62FB;
   color: #fff;
 }
 
@@ -117,7 +117,7 @@ body {
 }
 
 .team-table th:hover {
-  background: #2a2a4e;
+  background: #0C62FB;
 }
 
 .sort-icon::after {
@@ -162,23 +162,23 @@ body {
 }
 
 .persona-badge[data-persona="Confidant"] {
-  background: #6366f1;
+  background: #0C62FB;
 }
 
 .persona-badge[data-persona="Activator"] {
-  background: #f59e0b;
+  background: #FF6B35;
 }
 
 .persona-badge[data-persona="Realist"] {
-  background: #10b981;
+  background: #00C7B1;
 }
 
 .persona-badge[data-persona="Debater"] {
-  background: #ef4444;
+  background: #E91E8C;
 }
 
 .persona-badge[data-persona="Expert"] {
-  background: #8b5cf6;
+  background: #6B3FA0;
 }
 
 /* Clickable rows */
