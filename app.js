@@ -201,16 +201,24 @@ function renderTable() {
       <td>${m.name}</td>
       <td>${m.title}</td>
       <td>${m.market}</td>
-      <td><span class="persona-badge" data-persona="${m.persona}">${m.persona}</span></td>
-      <td><span class="persona-badge" data-persona="${m.secondaryPersona}">${m.secondaryPersona}</span></td>
+      <td><span class="persona-badge clickable" data-persona="${m.persona}">${m.persona}</span></td>
+      <td><span class="persona-badge clickable" data-persona="${m.secondaryPersona}">${m.secondaryPersona}</span></td>
     </tr>
   `).join("");
 
-  // Attach click handlers
+  // Attach click handlers for rows (member modal)
   tbody.querySelectorAll("tr").forEach(row => {
     row.addEventListener("click", () => {
       const idx = parseInt(row.dataset.index, 10);
       openModal(teamMembers[idx]);
+    });
+  });
+
+  // Attach click handlers for persona badges (persona modal)
+  tbody.querySelectorAll(".persona-badge.clickable").forEach(badge => {
+    badge.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openPersonaModal(badge.dataset.persona);
     });
   });
 
@@ -305,6 +313,58 @@ function closeModal() {
   document.getElementById("modal-overlay").classList.remove("active");
 }
 
+function openPersonaModal(personaName) {
+  const overlay = document.getElementById("persona-modal-overlay");
+  const desc = personaDescriptions[personaName];
+  const color = personaColors[personaName];
+
+  document.getElementById("persona-modal-name").textContent = personaName;
+  const badge = document.getElementById("persona-modal-badge");
+  badge.textContent = personaName;
+  badge.dataset.persona = personaName;
+
+  // Find team members with this persona (dominant or secondary)
+  const membersWithPersona = teamMembers.filter(
+    m => m.persona === personaName || m.secondaryPersona === personaName
+  );
+
+  const body = document.getElementById("persona-modal-body");
+  body.innerHTML = `
+    <div class="survey-section">
+      <h4>Core Identity</h4>
+      <p style="font-size:1.05rem; font-style:italic; color:var(--slalom-blue); margin-bottom:12px;">&ldquo;${desc.identity}&rdquo;</p>
+    </div>
+    <div class="survey-section">
+      <h4>Characteristics</h4>
+      <div style="font-size:0.85rem; color:var(--slate-700); line-height:1.7;">
+        <p><strong>Signals:</strong> ${desc.signals}</p>
+        <p><strong>Risk:</strong> ${desc.risk}</p>
+        <p><strong>Leadership takeaway:</strong> ${desc.leaderTakeaway}</p>
+        <p style="margin-top:8px; color:var(--slate-500);"><em>Client impression: &ldquo;${desc.clientImpression}&rdquo;</em></p>
+      </div>
+    </div>
+    <div class="survey-section">
+      <h4>Team Members with this Persona</h4>
+      ${membersWithPersona.length ? `
+        <ul class="pairing-list">
+          ${membersWithPersona.map(m => `
+            <li class="pairing-item">
+              <span class="pairing-name">${m.name}</span>
+              <span class="pairing-reason">${m.persona === personaName ? 'Dominant' : 'Secondary'}</span>
+            </li>
+          `).join("")}
+        </ul>
+      ` : `<p style="font-size:0.9rem; color:var(--slate-400);">No team members with this persona</p>`}
+    </div>
+  `;
+
+  overlay.classList.add("active");
+}
+
+function closePersonaModal() {
+  document.getElementById("persona-modal-overlay").classList.remove("active");
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   renderTable();
   initSorting();
@@ -312,5 +372,10 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("modal-close").addEventListener("click", closeModal);
   document.getElementById("modal-overlay").addEventListener("click", (e) => {
     if (e.target === e.currentTarget) closeModal();
+  });
+
+  document.getElementById("persona-modal-close").addEventListener("click", closePersonaModal);
+  document.getElementById("persona-modal-overlay").addEventListener("click", (e) => {
+    if (e.target === e.currentTarget) closePersonaModal();
   });
 });

@@ -7,24 +7,37 @@ A lightweight, static dashboard that lets leaders at a digital agency view their
 ## What It Does
 
 - Displays a **leader profile card** (name, role, market)
-- Shows a **sortable team table** — click any column header to sort by name, market, or persona
+- Shows a **sortable team table** with columns: Name, Title, Market, Dominant Persona, Secondary Persona
 - Each team member has a **dominant persona** and a **secondary persona** (Confidant, Activator, Realist, Debater, Expert)
-- Click any row to open a **detail modal** showing:
-  - Dimension scores (bar chart visualization across 5 survey dimensions)
-  - Persona explanation
-  - **Suggested pairings** — complementary teammates with rationale
+- Click any **row** to open a **member detail modal** showing:
+  - Persona profile bar chart (percentage breakdown across all 5 personas, totaling 100%)
+  - Dominant persona interpretation (identity, signals, risk, leadership takeaway, client impression)
+  - Suggested pairings — complementary teammates with rationale
+- Click any **persona badge** in the table to open a **persona modal** showing:
+  - Core identity and characteristics of that persona
+  - Team members who have that persona (dominant or secondary)
+
+---
+
+## The Survey Model
+
+The app simulates results from a 25-question behavioral assessment:
+- Each question has 5 answer choices, one per persona (A=Activator, B=Expert, C=Confidant, D=Debater, E=Realist)
+- Scoring: count answers per persona ÷ 25 × 100 = percentage
+- Result is a profile that sums to 100%, revealing dominant tendencies
 
 ---
 
 ## File Structure
 
 ```
-├── index.html      # App shell — header, table, modal markup
-├── app.js          # All logic: data, sorting, modal rendering, pairing engine
-├── styles.css      # Full styling including table, badges, modal, bar charts
-├── styleguide.md   # Slalom brand reference (colors, typography, spacing)
-├── BRIEF.md        # Original product brief / requirements
-└── README          # This file
+├── index.html          # App shell — header, table, two modals
+├── app.js              # All logic: data, sorting, modal rendering, pairing engine
+├── styles.css          # Full styling (Bench Press design system tokens)
+├── styleguide.md       # Design system reference (from Hackathon Hub)
+├── activator_data.xlsx # Source survey/persona definitions (reference only)
+├── BRIEF.md            # Original product brief / requirements
+└── README              # This file
 ```
 
 ---
@@ -53,8 +66,10 @@ python -m http.server 8000
 | Static HTML (no framework) | Fast prototyping, zero build step, easy to share |
 | Data hardcoded in `app.js` | Swap the `teamMembers` array for an API call when ready |
 | Persona colors via `data-persona` attribute | CSS handles all color mapping — add new personas by adding a CSS rule |
-| Survey scores generated with seeded randomness | Consistent within a session, demonstrates the UI without real data |
+| Survey results as % profile (sum to 100%) | Matches the real 25-question scoring model from the Activator framework |
 | Pairing logic in JS | Complementary persona mapping lives in `pairingRationale` — easy to tune |
+| CSS custom properties (design tokens) | All colors, radii, shadows, fonts defined in `:root` for easy theming |
+| Fixed table layout | Prevents column-width jumping when sorting |
 
 ---
 
@@ -67,15 +82,16 @@ Replace the `teamMembers` array at the top of `app.js` with a fetch call. Expect
 ```js
 {
   name: "string",
+  title: "string",
   market: "string",
   persona: "Confidant" | "Activator" | "Realist" | "Debater" | "Expert",
   secondaryPersona: "Confidant" | "Activator" | "Realist" | "Debater" | "Expert",
   surveyResults: {          // optional — generated if missing
-    trust: number,          // 1–10
-    empathy: number,
-    challenge: number,
-    expertise: number,
-    action: number,
+    Activator: number,      // percentage (all five sum to 100)
+    Expert: number,
+    Confidant: number,
+    Debater: number,
+    Realist: number,
   }
 }
 ```
@@ -84,8 +100,9 @@ Replace the `teamMembers` array at the top of `app.js` with a fetch call. Expect
 
 1. Add the new persona name to the `personas` array in `app.js`
 2. Add a color entry to `personaColors` in `app.js`
-3. Add a CSS rule: `.persona-badge[data-persona="NewName"] { background: #HEX; }`
-4. Add pairing rationale in `pairingRationale`
+3. Add a description entry to `personaDescriptions` in `app.js`
+4. Add a CSS rule: `.persona-badge[data-persona="NewName"] { background: #HEX; }`
+5. Add pairing rationale in `pairingRationale`
 
 ### Changing the Leader Profile
 
@@ -93,11 +110,14 @@ Edit the hardcoded HTML in `index.html` (`.leader-profile` section), or pull fro
 
 ### Adapting the Style
 
-The app follows the Slalom brand guide documented in `styleguide.md`. Key tokens:
+The app uses the Bench Press design system (sourced from Hackathon Hub). Key tokens:
 - **Primary blue:** `#0C62FB`
-- **Dark navy (header):** `#001B36`
-- **Font:** Inter (loaded from Google Fonts CDN)
-- **Persona colors:** blue, orange, cyan, magenta, purple
+- **Dark slate (header/text):** `#0F172A`
+- **Fonts:** Nunito Sans (primary), Lora (serif accent), DM Mono (data)
+- **Border radius:** Asymmetric "Slalom cut" — top-right only (e.g. `0 24px 0 0`)
+- **Persona colors:** blue, coral, cyan, purple, dark blue
+
+All tokens are CSS custom properties in `:root` — see `styleguide.md` for the full reference.
 
 ### Deploying
 
@@ -112,7 +132,7 @@ Since it's fully static, deploy anywhere:
 
 | Dependency | Source | Purpose |
 |------------|--------|---------|
-| Inter font | Google Fonts CDN | Typography |
+| Nunito Sans, Lora, DM Mono | Google Fonts (via CSS `@import`) | Typography |
 | Material Symbols Outlined | Google Fonts CDN | Icons (person, close) |
 
 No npm packages. No build step. No runtime dependencies.

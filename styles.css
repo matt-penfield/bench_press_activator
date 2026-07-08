@@ -222,6 +222,16 @@ body {
   color: var(--white);
 }
 
+.persona-badge.clickable {
+  cursor: pointer;
+  transition: opacity 0.15s var(--ease-out), transform 0.15s var(--ease-out);
+}
+
+.persona-badge.clickable:hover {
+  opacity: 0.85;
+  transform: scale(1.05);
+}
+
 .persona-badge[data-persona="Confidant"] {
   background: var(--slalom-blue);
 }
