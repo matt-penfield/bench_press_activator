@@ -324,6 +324,9 @@ body {
 .score-label {
   font-size: 0.9rem;
   font-weight: 600;
+  min-width: 90px;
+  width: 90px;
+  flex-shrink: 0;
 }
 
 .score-bar-container {
