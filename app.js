@@ -27,29 +27,73 @@ function groupByPersona(members) {
   return groups;
 }
 
-// Mock survey scores for each member (scores out of 10 per dimension)
-function generateSurveyResults(persona) {
-  const base = {
-    Confidant:  { trust: 9, empathy: 8, challenge: 4, expertise: 5, action: 3 },
-    Activator:  { trust: 6, empathy: 5, challenge: 7, expertise: 5, action: 9 },
-    Realist:    { trust: 5, empathy: 6, challenge: 8, expertise: 6, action: 5 },
-    Debater:    { trust: 4, empathy: 4, challenge: 9, expertise: 7, action: 6 },
-    Expert:     { trust: 5, empathy: 4, challenge: 5, expertise: 9, action: 6 },
-  };
-  // Add slight randomness
-  const scores = { ...base[persona] };
-  Object.keys(scores).forEach(k => {
-    scores[k] = Math.min(10, Math.max(1, scores[k] + Math.floor(Math.random() * 3) - 1));
-  });
-  return scores;
+// Mock survey scores for each member — percentage profile summing to 100%
+// Based on 25-question assessment where each answer maps to a persona (A=Activator, B=Expert, C=Confidant, D=Debater, E=Realist)
+function generateSurveyResults(persona, secondaryPersona) {
+  // Base profiles: dominant persona gets ~36-44%, secondary ~20-28%, others split remainder
+  const base = { Activator: 8, Expert: 8, Confidant: 8, Debater: 8, Realist: 8 };
+  base[persona] = 36 + Math.floor(Math.random() * 9);       // 36-44%  (9-11 of 25 answers)
+  base[secondaryPersona] = 20 + Math.floor(Math.random() * 9); // 20-28% (5-7 of 25 answers)
+
+  // Distribute remainder across the other three
+  const total = Object.values(base).reduce((a, b) => a + b, 0);
+  const others = personas.filter(p => p !== persona && p !== secondaryPersona);
+  const remainder = 100 - base[persona] - base[secondaryPersona];
+  const shares = splitRemainder(remainder, 3);
+  others.forEach((p, i) => { base[p] = shares[i]; });
+
+  return base;
 }
 
-const dimensionLabels = {
-  trust: "Trust Building",
-  empathy: "Empathy & Listening",
-  challenge: "Willingness to Challenge",
-  expertise: "Domain Expertise",
-  action: "Bias to Action",
+function splitRemainder(total, n) {
+  const parts = [];
+  let remaining = total;
+  for (let i = 0; i < n - 1; i++) {
+    const max = Math.max(4, remaining - (n - i - 1) * 4);
+    const val = 4 + Math.floor(Math.random() * (max - 4 + 1));
+    parts.push(val);
+    remaining -= val;
+  }
+  parts.push(Math.max(4, remaining));
+  return parts;
+}
+
+const personaDescriptions = {
+  Activator: {
+    identity: "Growth comes from creating opportunity.",
+    signals: "Growth driver, proactive, opportunity creator",
+    risk: "Can sacrifice depth for breadth",
+    leaderTakeaway: "Leverage for pipeline creation",
+    clientImpression: "They always bring value.",
+  },
+  Expert: {
+    identity: "My expertise creates demand.",
+    signals: "Strong delivery, trusted capability, technical credibility",
+    risk: "Reactive, waits for demand",
+    leaderTakeaway: "Pair with Activators to convert expertise into pipeline",
+    clientImpression: "They're brilliant.",
+  },
+  Confidant: {
+    identity: "People buy from people they trust.",
+    signals: "Deep relationships, high trust, loyalty",
+    risk: "Avoids tension, slow expansion, single-threaded accounts",
+    leaderTakeaway: "Anchor on key accounts",
+    clientImpression: "I trust them completely.",
+  },
+  Debater: {
+    identity: "The client is wrong — and I'll prove it.",
+    signals: "Insightful, challenges thinking, creates disruption",
+    risk: "Can alienate stakeholders, overly confrontational",
+    leaderTakeaway: "Use in strategic pursuits",
+    clientImpression: "They changed how I think.",
+  },
+  Realist: {
+    identity: "Trust comes from honesty.",
+    signals: "Strong judgment, protects margin, credibility",
+    risk: "Overly conservative, can seem cautious",
+    leaderTakeaway: "Critical for deal qualification",
+    clientImpression: "They tell me the truth.",
+  },
 };
 
 const personaColors = {
@@ -60,41 +104,41 @@ const personaColors = {
   Expert: "#002FAF",
 };
 
-// Pairing logic: complementary personas that balance each other
+// Pairing logic: complementary personas based on strengths/weaknesses from the Activator framework
 const pairingRationale = {
   Confidant: {
-    best: ["Debater", "Activator"],
+    best: ["Activator", "Debater"],
     reason: {
-      Debater: "Balances empathy with constructive challenge",
-      Activator: "Turns trust-built alignment into momentum",
+      Activator: "Turns deep trust into proactive growth opportunities",
+      Debater: "Challenges comfort zone; expands beyond single-threaded accounts",
     }
   },
   Activator: {
-    best: ["Realist", "Confidant"],
+    best: ["Realist", "Expert"],
     reason: {
-      Realist: "Grounds action bias with practical constraints",
-      Confidant: "Ensures team buy-in before pushing forward",
+      Realist: "Grounds opportunity creation with deal qualification rigor",
+      Expert: "Adds technical depth to broad pipeline creation",
     }
   },
   Realist: {
-    best: ["Activator", "Expert"],
+    best: ["Activator", "Confidant"],
     reason: {
-      Activator: "Prevents analysis paralysis with action bias",
-      Expert: "Deepens practical insights with domain knowledge",
+      Activator: "Prevents over-caution; drives momentum on qualified deals",
+      Confidant: "Softens directness with relationship warmth",
     }
   },
   Debater: {
     best: ["Confidant", "Expert"],
     reason: {
-      Confidant: "Softens challenge with relationship trust",
-      Expert: "Backs arguments with evidence and depth",
+      Confidant: "Balances challenge with trust so clients stay engaged",
+      Expert: "Backs provocative thinking with evidence and credibility",
     }
   },
   Expert: {
     best: ["Activator", "Debater"],
     reason: {
-      Activator: "Moves expertise from theory to execution",
-      Debater: "Stress-tests ideas for stronger outcomes",
+      Activator: "Converts reactive expertise into proactive demand creation",
+      Debater: "Stress-tests ideas, sharpens positioning for strategic pursuits",
     }
   },
 };
@@ -127,7 +171,7 @@ function getPairingSuggestions(member) {
 
 // Pre-generate survey results for consistency within session
 teamMembers.forEach(m => {
-  m.surveyResults = generateSurveyResults(m.persona);
+  m.surveyResults = generateSurveyResults(m.persona, m.secondaryPersona);
 });
 
 let currentSort = { key: null, direction: "asc" };
@@ -206,25 +250,37 @@ function openModal(member) {
   const scores = member.surveyResults;
   const color = personaColors[member.persona];
   const pairings = getPairingSuggestions(member);
+  const desc = personaDescriptions[member.persona];
+
+  // Sort personas by score descending for display
+  const sortedPersonas = Object.entries(scores)
+    .sort((a, b) => b[1] - a[1]);
 
   body.innerHTML = `
     <div class="survey-section">
-      <h4>Activator Framework — Dimension Scores</h4>
-      ${Object.entries(scores).map(([key, val]) => `
+      <h4>Persona Profile — Survey Results</h4>
+      <p style="font-size:0.8rem; color:var(--slate-500); margin-bottom:12px;">Based on 25 behavioral questions. Each bar shows what percentage of responses aligned to that persona.</p>
+      ${sortedPersonas.map(([key, val]) => `
         <div class="score-row">
-          <span class="score-label">${dimensionLabels[key]}</span>
+          <span class="score-label">${key}</span>
           <div class="score-bar-container">
             <div class="score-bar">
-              <div class="score-bar-fill" style="width:${val * 10}%; background:${color}"></div>
+              <div class="score-bar-fill" style="width:${val}%; background:${personaColors[key]}"></div>
             </div>
-            <span class="score-value">${val}/10</span>
+            <span class="score-value">${val}%</span>
           </div>
         </div>
       `).join("")}
     </div>
     <div class="survey-section">
-      <h4>Dominant Persona</h4>
-      <p style="font-size:0.9rem; color:#444;">Based on survey responses, <strong>${member.name}</strong> most closely aligns with the <strong>${member.persona}</strong> archetype in the Activator framework.</p>
+      <h4>Dominant Persona — ${member.persona}</h4>
+      <p style="font-size:0.95rem; font-style:italic; color:var(--slalom-blue); margin-bottom:8px;">"${desc.identity}"</p>
+      <div style="font-size:0.85rem; color:var(--slate-700); line-height:1.6;">
+        <p><strong>Signals:</strong> ${desc.signals}</p>
+        <p><strong>Risk:</strong> ${desc.risk}</p>
+        <p><strong>Leadership takeaway:</strong> ${desc.leaderTakeaway}</p>
+        <p style="margin-top:6px; color:var(--slate-500);"><em>Client impression: "${desc.clientImpression}"</em></p>
+      </div>
     </div>
     <div class="survey-section">
       <h4>Suggested Pairings</h4>
