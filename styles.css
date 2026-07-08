@@ -145,7 +145,19 @@ body {
   border-radius: var(--radius-card);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
+  table-layout: fixed;
 }
+
+.team-table th:nth-child(1),
+.team-table td:nth-child(1) { width: 20%; }  /* Name */
+.team-table th:nth-child(2),
+.team-table td:nth-child(2) { width: 20%; }  /* Title */
+.team-table th:nth-child(3),
+.team-table td:nth-child(3) { width: 14%; }  /* Market */
+.team-table th:nth-child(4),
+.team-table td:nth-child(4) { width: 23%; }  /* Dominant Persona */
+.team-table th:nth-child(5),
+.team-table td:nth-child(5) { width: 23%; }  /* Secondary Persona */
 
 .team-table thead {
   background: var(--slate-900);
