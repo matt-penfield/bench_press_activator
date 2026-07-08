@@ -34,8 +34,9 @@
             <th data-sort="name">Name <span class="sort-icon"></span></th>
             <th data-sort="title">Title <span class="sort-icon"></span></th>
             <th data-sort="market">Market <span class="sort-icon"></span></th>
-            <th data-sort="persona">Dominant Persona <span class="sort-icon"></span></th>
-            <th data-sort="secondaryPersona">Secondary Persona <span class="sort-icon"></span></th>
+            <th data-sort="persona">Dominant <span class="sort-icon"></span></th>
+            <th data-sort="secondaryPersona">Secondary <span class="sort-icon"></span></th>
+            <th data-sort="clientFacing">Client Facing <span class="sort-icon"></span></th>
           </tr>
         </thead>
         <tbody id="team-tbody"></tbody>
@@ -144,6 +145,22 @@
         </div>
 
       </div>
+    </section>
+
+    <section class="persona-model">
+      <h2 class="section-title">The Persona Model</h2>
+      <p class="reference-intro">Like the enneagram, every seller sits at a <strong>core persona</strong> shaded by a <strong>wing</strong> — a secondary persona that colors how their core shows up. Each core is naturally offset by <strong>two balance points</strong>: complementary personas that counter its blind spots. Explore all 20 permutations below.</p>
+
+      <div class="model-layout">
+        <div class="model-diagram">
+          <div id="model-diagram-svg"></div>
+          <div class="model-legend" id="model-legend"></div>
+        </div>
+        <div class="model-detail" id="model-detail"></div>
+      </div>
+
+      <h3 class="model-subtitle">All 20 Permutations</h3>
+      <div class="permutation-grid" id="permutation-grid"></div>
     </section>
   </main>
 

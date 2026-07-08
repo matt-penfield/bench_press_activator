@@ -30,31 +30,34 @@ function groupByPersona(members) {
 // Mock survey scores for each member — percentage profile summing to 100%
 // Based on 25-question assessment where each answer maps to a persona (A=Activator, B=Expert, C=Confidant, D=Debater, E=Realist)
 function generateSurveyResults(persona, secondaryPersona) {
-  // Base profiles: dominant persona gets ~36-44%, secondary ~20-28%, others split remainder
-  const base = { Activator: 8, Expert: 8, Confidant: 8, Debater: 8, Realist: 8 };
-  base[persona] = 36 + Math.floor(Math.random() * 9);       // 36-44%  (9-11 of 25 answers)
-  base[secondaryPersona] = 20 + Math.floor(Math.random() * 9); // 20-28% (5-7 of 25 answers)
+  // Guarantee ordering: primary > secondary > each of the other three.
+  const base = { Activator: 0, Expert: 0, Confidant: 0, Debater: 0, Realist: 0 };
+  const primaryScore = 38 + Math.floor(Math.random() * 7);      // 38-44%
+  const secondaryScore = 22 + Math.floor(Math.random() * 7);    // 22-28% (always < primary)
+  base[persona] = primaryScore;
+  base[secondaryPersona] = secondaryScore;
 
-  // Distribute remainder across the other three
-  const total = Object.values(base).reduce((a, b) => a + b, 0);
+  // Distribute the remainder across the other three, each capped below the secondary
   const others = personas.filter(p => p !== persona && p !== secondaryPersona);
-  const remainder = 100 - base[persona] - base[secondaryPersona];
-  const shares = splitRemainder(remainder, 3);
+  const remainder = 100 - primaryScore - secondaryScore;
+  const shares = splitRemainder(remainder, others.length, secondaryScore - 1);
   others.forEach((p, i) => { base[p] = shares[i]; });
 
   return base;
 }
 
-function splitRemainder(total, n) {
-  const parts = [];
-  let remaining = total;
-  for (let i = 0; i < n - 1; i++) {
-    const max = Math.max(4, remaining - (n - i - 1) * 4);
-    const val = 4 + Math.floor(Math.random() * (max - 4 + 1));
-    parts.push(val);
-    remaining -= val;
+// Split `total` into `n` parts, each between 4 and `maxEach`, so no "other"
+// persona can rival the labeled secondary. Assumes 4*n <= total <= maxEach*n.
+function splitRemainder(total, n, maxEach) {
+  const parts = new Array(n).fill(4);
+  let remaining = total - 4 * n;
+  while (remaining > 0) {
+    const i = Math.floor(Math.random() * n);
+    if (parts[i] < maxEach) {
+      parts[i]++;
+      remaining--;
+    }
   }
-  parts.push(Math.max(4, remaining));
   return parts;
 }
 
@@ -212,6 +215,7 @@ function renderTable() {
       <td>${m.market}</td>
       <td><span class="persona-badge" data-persona="${m.persona}">${m.persona}</span></td>
       <td><span class="persona-badge" data-persona="${m.secondaryPersona}">${m.secondaryPersona}</span></td>
+      <td><span class="client-facing-badge" data-persona="${m.persona}">${m.clientFacing}</span></td>
     </tr>
   `).join("");
 
@@ -260,12 +264,25 @@ function openModal(member) {
   const color = personaColors[member.persona];
   const pairings = getPairingSuggestions(member);
   const desc = personaDescriptions[member.persona];
+  const composite = getPersonaType(member.persona, member.secondaryPersona);
 
   // Sort personas by score descending for display
   const sortedPersonas = Object.entries(scores)
     .sort((a, b) => b[1] - a[1]);
 
   body.innerHTML = `
+    <div class="composite-hero" data-persona="${composite.primary}">
+      <span class="composite-code" data-persona="${composite.primary}">${composite.code}</span>
+      <div class="composite-hero-text">
+        <h3 class="composite-name">${composite.blendName}</h3>
+        <p class="composite-formula">
+          <span class="persona-badge" data-persona="${composite.primary}">${composite.primary}</span>
+          <span class="formula-plus">+</span>
+          <span class="persona-badge" data-persona="${composite.secondary}">${composite.secondary}</span>
+        </p>
+      </div>
+    </div>
+    <p class="composite-description">${composite.blendDescription}</p>
     <div class="survey-section">
       <h4>Persona Profile — Survey Results</h4>
       <p style="font-size:0.8rem; color:var(--slate-500); margin-bottom:12px;">Based on 25 behavioral questions. Each bar shows what percentage of responses aligned to that persona.</p>
@@ -366,9 +383,241 @@ function closePersonaModal() {
   document.getElementById("persona-modal-overlay").classList.remove("active");
 }
 
+// ---- Enneagram-style Persona Model ----
+// Every seller has a PRIMARY persona (core) and a SECONDARY persona (wing).
+// Each core is naturally offset by two "balance points" — complementary
+// personas that counter the core's blind spots. Balance points are derived
+// from the pairing framework above, so the model stays a single source of truth.
+const personaBalance = {
+  Confidant: pairingRationale.Confidant.best,
+  Activator: pairingRationale.Activator.best,
+  Realist: pairingRationale.Realist.best,
+  Debater: pairingRationale.Debater.best,
+  Expert: pairingRationale.Expert.best,
+};
+
+const personaShort = { Activator: "A", Confidant: "C", Realist: "R", Debater: "D", Expert: "E" };
+
+// Personas whose badge/light color needs dark text for contrast
+const personaTextDark = { Realist: true, Debater: true };
+
+// Derived composite personas — a named blend for every primary + secondary pair.
+// The primary sets the core drive; the secondary (wing) shapes how it shows up.
+const blendedPersonas = {
+  Confidant: {
+    Activator: { name: "The Connector", description: "Deep client trust that opens doors, paired with the drive to turn those relationships into fresh pipeline and growth." },
+    Realist: { name: "Trusted Partner", description: "Relationships built on candor. Clients lean on them because they feel both cared for and told the truth." },
+    Debater: { name: "Trusted Challenger", description: "Uses hard-won trust as a license to push clients past their assumptions without ever fracturing the relationship." },
+    Expert: { name: "Trusted Advisor", description: "Pairs genuine relationships with real credibility, so clients seek out their judgment on the decisions that matter most." },
+  },
+  Activator: {
+    Confidant: { name: "The Rainmaker", description: "Generates pipeline through a wide, warm network — opportunities follow because people genuinely enjoy working with them." },
+    Realist: { name: "Disciplined Driver", description: "Relentlessly creates opportunity but qualifies as they go, so all that momentum lands on the deals actually worth winning." },
+    Debater: { name: "Bold Instigator", description: "Manufactures demand by provoking new thinking, sparking conversations that reframe what the client believes they need." },
+    Expert: { name: "Credible Hunter", description: "Opens doors on the strength of proven expertise, converting proactive outreach into engagements clients trust from day one." },
+  },
+  Realist: {
+    Confidant: { name: "Honest Broker", description: "Delivers uncomfortable truths in a way that lands as care, protecting both the client's outcome and the relationship." },
+    Activator: { name: "Pragmatic Driver", description: "Keeps deals honest and well-scoped while still pushing momentum on the opportunities that genuinely deserve it." },
+    Debater: { name: "Straight Shooter", description: "Direct and unflinching — challenges assumptions with a candor that clients come to respect and rely on." },
+    Expert: { name: "The Validator", description: "Grounds every recommendation in expertise and honest assessment, becoming the team's quality conscience." },
+  },
+  Debater: {
+    Confidant: { name: "Diplomatic Challenger", description: "Pushes clients well past their comfort zone while relational trust keeps the challenge feeling safe rather than confrontational." },
+    Activator: { name: "The Disruptor", description: "Challenges the status quo to create urgency, turning provocative insight directly into new pipeline." },
+    Realist: { name: "Devil's Advocate", description: "Challenges thinking with grounded honesty, stress-testing decisions before they harden into commitments." },
+    Expert: { name: "Thought Leader", description: "Reframes the client's thinking with the depth to back it up, making bold ideas credible instead of merely provocative." },
+  },
+  Expert: {
+    Confidant: { name: "Go-To Specialist", description: "The trusted domain authority clients call first, combining deep credibility with a genuinely strong relationship." },
+    Activator: { name: "The Evangelist", description: "Turns deep expertise into demand, actively creating the conversations others wait for." },
+    Realist: { name: "The Craftsman", description: "Pairs mastery with candor — delivers excellent work alongside an honest view of what's truly achievable." },
+    Debater: { name: "The Visionary", description: "Uses authority to challenge convention, pushing clients toward bolder, better-informed decisions." },
+  },
+};
+
+// Build the full profile for a single primary/secondary permutation
+function getPersonaType(primary, secondary) {
+  const balance = personaBalance[primary];
+  const blend = blendedPersonas[primary][secondary];
+  return {
+    primary,
+    secondary,
+    code: `${personaShort[primary]}${personaShort[secondary].toLowerCase()}`,
+    blendName: blend.name,
+    blendDescription: blend.description,
+    name: `${primary} with a ${secondary} wing`,
+    identity: personaDescriptions[primary].identity,
+    coreStrength: personaPairingValue[primary],
+    wing: { persona: secondary, flavor: personaPairingValue[secondary] },
+    risk: personaDescriptions[primary].risk,
+    balancedBy: balance.map(p => ({
+      persona: p,
+      reason: pairingRationale[primary].reason[p],
+      value: personaPairingValue[p],
+    })),
+  };
+}
+
+// Generate every permutation: 5 primaries × 4 secondaries = 20 types
+function buildPersonaModel() {
+  const model = [];
+  personas.forEach(primary => {
+    personas.forEach(secondary => {
+      if (primary !== secondary) model.push(getPersonaType(primary, secondary));
+    });
+  });
+  return model;
+}
+
+const personaModel = buildPersonaModel();
+let selectedTypeCode = personaModel[0].code;
+
+// Compute pentagon node coordinates (one per persona) around a circle
+function getNodePositions() {
+  const cx = 200, cy = 185, r = 132;
+  const positions = {};
+  personas.forEach((p, i) => {
+    const angle = (-90 + i * (360 / personas.length)) * (Math.PI / 180);
+    positions[p] = { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) };
+  });
+  return positions;
+}
+
+function renderDiagram(type) {
+  const pos = getNodePositions();
+  const highlight = {
+    [type.primary]: "primary",
+    [type.secondary]: type.secondary === type.primary ? undefined : "wing",
+  };
+  type.balancedBy.forEach(b => {
+    if (!highlight[b.persona]) highlight[b.persona] = "balance";
+  });
+
+  // Wing link (dashed) + balance arrows (solid) originate from the primary node
+  const p = pos[type.primary];
+  const wingLine = `<line x1="${p.x}" y1="${p.y}" x2="${pos[type.secondary].x}" y2="${pos[type.secondary].y}" class="link link-wing" />`;
+  const balanceLines = type.balancedBy.map(b =>
+    `<line x1="${p.x}" y1="${p.y}" x2="${pos[b.persona].x}" y2="${pos[b.persona].y}" class="link link-balance" marker-end="url(#arrow)" />`
+  ).join("");
+
+  const nodes = personas.map(persona => {
+    const { x, y } = pos[persona];
+    const role = highlight[persona] || "muted";
+    const fill = personaColors[persona];
+    const textFill = personaTextDark[persona] ? "#0F172A" : "#FFFFFF";
+    const rOuter = role === "primary" ? 30 : 24;
+    return `
+      <g class="node node-${role}" data-persona="${persona}" transform="translate(${x},${y})">
+        <circle r="${rOuter}" fill="${fill}" class="node-circle" />
+        <text class="node-label" y="5" text-anchor="middle" fill="${textFill}">${personaShort[persona]}</text>
+      </g>`;
+  }).join("");
+
+  return `
+    <svg viewBox="0 0 400 370" class="model-svg" role="img" aria-label="Persona balance diagram">
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--slate-400)" />
+        </marker>
+      </defs>
+      <g class="links">${balanceLines}${wingLine}</g>
+      <g class="nodes">${nodes}</g>
+    </svg>`;
+}
+
+function renderModelDetail(type) {
+  const desc = personaDescriptions[type.primary];
+  return `
+    <div class="type-detail-header">
+      <span class="type-code" data-persona="${type.primary}">${type.code}</span>
+      <div>
+        <h3 class="type-name">${type.blendName}</h3>
+        <p class="type-blend-formula">${type.primary} <span class="formula-plus">+</span> ${type.secondary}</p>
+      </div>
+    </div>
+
+    <p class="type-blend-description">${type.blendDescription}</p>
+
+    <div class="survey-section">
+      <h4>Core — ${type.primary}</h4>
+      <p class="type-line">${type.coreStrength}</p>
+    </div>
+
+    <div class="survey-section">
+      <h4>Wing — ${type.wing.persona}</h4>
+      <p class="type-line">${type.wing.flavor}</p>
+    </div>
+
+    <div class="survey-section">
+      <h4>Balance Points</h4>
+      <ul class="pairing-list">
+        ${type.balancedBy.map(b => `
+          <li class="pairing-item">
+            <span class="persona-badge" data-persona="${b.persona}" title="${b.persona}">${b.persona}</span>
+            <span class="pairing-reason">${b.reason}</span>
+          </li>
+        `).join("")}
+      </ul>
+    </div>
+
+    <div class="survey-section">
+      <h4>Watch For</h4>
+      <p class="type-line type-risk">${desc.risk}</p>
+    </div>`;
+}
+
+function selectType(code) {
+  selectedTypeCode = code;
+  const type = personaModel.find(t => t.code === code);
+  if (!type) return;
+  document.getElementById("model-diagram-svg").innerHTML = renderDiagram(type);
+  document.getElementById("model-detail").innerHTML = renderModelDetail(type);
+  document.querySelectorAll(".permutation-cell").forEach(cell => {
+    cell.classList.toggle("selected", cell.dataset.code === code);
+  });
+}
+
+function renderModel() {
+  // Legend
+  document.getElementById("model-legend").innerHTML = personas.map(p =>
+    `<span class="legend-item"><span class="legend-dot" style="background:${personaColors[p]}"></span>${p}</span>`
+  ).join("");
+
+  // Permutation grid grouped by primary persona
+  const grid = document.getElementById("permutation-grid");
+  grid.innerHTML = personas.map(primary => `
+    <div class="permutation-group">
+      <div class="permutation-group-title">
+        <span class="persona-badge" data-persona="${primary}">${primary}</span> core
+      </div>
+      <div class="permutation-cells">
+        ${personaModel.filter(t => t.primary === primary).map(t => `
+          <button class="permutation-cell" data-code="${t.code}" data-persona="${primary}">
+            <span class="cell-name">${t.blendName}</span>
+            <span class="cell-wing">+ ${t.secondary}</span>
+          </button>
+        `).join("")}
+      </div>
+    </div>
+  `).join("");
+
+  grid.querySelectorAll(".permutation-cell").forEach(cell => {
+    cell.addEventListener("click", () => selectType(cell.dataset.code));
+  });
+
+  selectType(selectedTypeCode);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+  // Derive each member's client-facing (composite) persona name for the table
+  teamMembers.forEach(m => {
+    m.clientFacing = getPersonaType(m.persona, m.secondaryPersona).blendName;
+  });
+
   renderTable();
   initSorting();
+  renderModel();
 
   document.getElementById("modal-close").addEventListener("click", closeModal);
   document.getElementById("modal-overlay").addEventListener("click", (e) => {
