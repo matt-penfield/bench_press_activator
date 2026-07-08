@@ -210,8 +210,8 @@ function renderTable() {
       <td>${m.name}</td>
       <td>${m.title}</td>
       <td>${m.market}</td>
-      <td><span class="persona-badge clickable" data-persona="${m.persona}">${m.persona}</span></td>
-      <td><span class="persona-badge clickable" data-persona="${m.secondaryPersona}">${m.secondaryPersona}</span></td>
+      <td><span class="persona-badge" data-persona="${m.persona}">${m.persona}</span></td>
+      <td><span class="persona-badge" data-persona="${m.secondaryPersona}">${m.secondaryPersona}</span></td>
     </tr>
   `).join("");
 
@@ -220,14 +220,6 @@ function renderTable() {
     row.addEventListener("click", () => {
       const idx = parseInt(row.dataset.index, 10);
       openModal(teamMembers[idx]);
-    });
-  });
-
-  // Attach click handlers for persona badges (persona modal)
-  tbody.querySelectorAll(".persona-badge.clickable").forEach(badge => {
-    badge.addEventListener("click", (e) => {
-      e.stopPropagation();
-      openPersonaModal(badge.dataset.persona);
     });
   });
 
