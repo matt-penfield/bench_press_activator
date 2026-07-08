@@ -296,7 +296,7 @@ function openModal(member) {
         <ul class="pairing-list">
           ${pairings.map(p => `
             <li class="pairing-item">
-              <span class="persona-badge" data-persona="${p.persona}">${p.persona.charAt(0)}</span>
+              <span class="persona-badge" data-persona="${p.persona}" title="${p.persona}">${p.persona.charAt(0)}</span>
               <span class="pairing-name">${p.name}</span>
               <span class="pairing-reason">${p.reason}</span>
             </li>
