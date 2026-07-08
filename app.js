@@ -54,10 +54,10 @@ const dimensionLabels = {
 
 const personaColors = {
   Confidant: "#0C62FB",
-  Activator: "#FF6B35",
-  Realist: "#00C7B1",
-  Debater: "#E91E8C",
-  Expert: "#6B3FA0",
+  Activator: "#FF4D5F",
+  Realist: "#1BE1F2",
+  Debater: "#C7B9FF",
+  Expert: "#002FAF",
 };
 
 // Pairing logic: complementary personas that balance each other
