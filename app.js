@@ -104,6 +104,15 @@ const personaColors = {
   Expert: "#002FAF",
 };
 
+// Consistent per-persona description of what they bring to a sales team pairing
+const personaPairingValue = {
+  Activator: "Creates pipeline and drives outreach — keeps deals moving forward",
+  Expert: "Brings technical credibility — clients trust their depth in the room",
+  Confidant: "Builds deep client trust — opens doors and protects relationships",
+  Debater: "Challenges client thinking — elevates the conversation to strategic",
+  Realist: "Qualifies deals and manages scope — protects margin and delivery",
+};
+
 // Pairing logic: complementary personas based on strengths/weaknesses from the Activator framework
 const pairingRationale = {
   Confidant: {
@@ -298,7 +307,7 @@ function openModal(member) {
             <li class="pairing-item">
               <span class="persona-badge" data-persona="${p.persona}" title="${p.persona}">${p.persona.charAt(0)}</span>
               <span class="pairing-name">${p.name}</span>
-              <span class="pairing-reason">${p.reason}</span>
+              <span class="pairing-reason">${personaPairingValue[p.persona]}</span>
             </li>
           `).join("")}
         </ul>
