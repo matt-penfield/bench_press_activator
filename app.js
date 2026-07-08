@@ -1,17 +1,17 @@
 // Sample team data — replace with real data source later
 const teamMembers = [
-  { name: "Jordan Lee", market: "Seattle", persona: "Confidant", secondaryPersona: "Expert" },
-  { name: "Casey Rivera", market: "Denver", persona: "Activator", secondaryPersona: "Debater" },
-  { name: "Taylor Kim", market: "Chicago", persona: "Realist", secondaryPersona: "Confidant" },
-  { name: "Morgan Chen", market: "Seattle", persona: "Debater", secondaryPersona: "Activator" },
-  { name: "Riley Patel", market: "Atlanta", persona: "Expert", secondaryPersona: "Realist" },
-  { name: "Sam Torres", market: "Denver", persona: "Confidant", secondaryPersona: "Realist" },
-  { name: "Drew Nakamura", market: "Chicago", persona: "Activator", secondaryPersona: "Expert" },
-  { name: "Jamie Okafor", market: "Atlanta", persona: "Realist", secondaryPersona: "Activator" },
-  { name: "Quinn Alvarez", market: "Seattle", persona: "Expert", secondaryPersona: "Debater" },
-  { name: "Avery Singh", market: "Denver", persona: "Debater", secondaryPersona: "Confidant" },
-  { name: "Dakota Flores", market: "Chicago", persona: "Activator", secondaryPersona: "Realist" },
-  { name: "Hayden Park", market: "Atlanta", persona: "Confidant", secondaryPersona: "Activator" },
+  { name: "Jordan Lee", title: "Sr. Consultant", market: "Seattle", persona: "Confidant", secondaryPersona: "Expert" },
+  { name: "Casey Rivera", title: "Consultant", market: "Denver", persona: "Activator", secondaryPersona: "Debater" },
+  { name: "Taylor Kim", title: "Principal", market: "Chicago", persona: "Realist", secondaryPersona: "Confidant" },
+  { name: "Morgan Chen", title: "Sr. Director", market: "Seattle", persona: "Debater", secondaryPersona: "Activator" },
+  { name: "Riley Patel", title: "Associate Consultant", market: "Atlanta", persona: "Expert", secondaryPersona: "Realist" },
+  { name: "Sam Torres", title: "Director", market: "Denver", persona: "Confidant", secondaryPersona: "Realist" },
+  { name: "Drew Nakamura", title: "Sr. Principal", market: "Chicago", persona: "Activator", secondaryPersona: "Expert" },
+  { name: "Jamie Okafor", title: "Consultant", market: "Atlanta", persona: "Realist", secondaryPersona: "Activator" },
+  { name: "Quinn Alvarez", title: "Sr. Consultant", market: "Seattle", persona: "Expert", secondaryPersona: "Debater" },
+  { name: "Avery Singh", title: "Associate Consultant", market: "Denver", persona: "Debater", secondaryPersona: "Confidant" },
+  { name: "Dakota Flores", title: "Principal", market: "Chicago", persona: "Activator", secondaryPersona: "Realist" },
+  { name: "Hayden Park", title: "Consultant", market: "Atlanta", persona: "Confidant", secondaryPersona: "Activator" },
 ];
 
 const personas = ["Confidant", "Activator", "Realist", "Debater", "Expert"];
@@ -155,6 +155,7 @@ function renderTable() {
   tbody.innerHTML = sorted.map((m, i) => `
     <tr data-index="${teamMembers.indexOf(m)}">
       <td>${m.name}</td>
+      <td>${m.title}</td>
       <td>${m.market}</td>
       <td><span class="persona-badge" data-persona="${m.persona}">${m.persona}</span></td>
       <td><span class="persona-badge" data-persona="${m.secondaryPersona}">${m.secondaryPersona}</span></td>
