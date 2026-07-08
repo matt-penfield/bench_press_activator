@@ -265,21 +265,48 @@ function openModal(member) {
   const sortedPersonas = Object.entries(scores)
     .sort((a, b) => b[1] - a[1]);
 
+  // Generate SVG pie chart
+  const pieSize = 140;
+  const cx = pieSize / 2;
+  const cy = pieSize / 2;
+  const r = 60;
+  let cumulativePercent = 0;
+
+  function getSlicePath(percent) {
+    const startAngle = cumulativePercent * 3.6 * (Math.PI / 180);
+    cumulativePercent += percent;
+    const endAngle = cumulativePercent * 3.6 * (Math.PI / 180);
+    const largeArc = percent > 50 ? 1 : 0;
+    const x1 = cx + r * Math.sin(startAngle);
+    const y1 = cy - r * Math.cos(startAngle);
+    const x2 = cx + r * Math.sin(endAngle);
+    const y2 = cy - r * Math.cos(endAngle);
+    return `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+  }
+
+  const pieSlices = sortedPersonas.map(([key, val]) => {
+    const path = getSlicePath(val);
+    return `<path d="${path}" fill="${personaColors[key]}" stroke="white" stroke-width="1.5"/>`;
+  }).join("");
+
+  const pieSvg = `<svg width="${pieSize}" height="${pieSize}" viewBox="0 0 ${pieSize} ${pieSize}">${pieSlices}</svg>`;
+
+  const pieLegend = sortedPersonas.map(([key, val]) => `
+    <div class="pie-legend-item">
+      <span class="pie-legend-label">${key}</span>
+      <span class="pie-legend-bar" style="width:${val * 2}px; background:${personaColors[key]}"></span>
+      <span class="pie-legend-value">${val}%</span>
+    </div>
+  `).join("");
+
   body.innerHTML = `
     <div class="survey-section">
       <h4>Persona Profile — Survey Results</h4>
-      <p style="font-size:0.8rem; color:var(--slate-500); margin-bottom:12px;">Based on 25 behavioral questions. Each bar shows what percentage of responses aligned to that persona.</p>
-      ${sortedPersonas.map(([key, val]) => `
-        <div class="score-row">
-          <span class="score-label">${key}</span>
-          <div class="score-bar-container">
-            <div class="score-bar">
-              <div class="score-bar-fill" style="width:${val}%; background:${personaColors[key]}"></div>
-            </div>
-            <span class="score-value">${val}%</span>
-          </div>
-        </div>
-      `).join("")}
+      <p style="font-size:0.8rem; color:var(--slate-500); margin-bottom:12px;">Based on 25 behavioral questions. Percentage of responses aligned to each persona.</p>
+      <div class="pie-chart-container">
+        <div class="pie-chart">${pieSvg}</div>
+        <div class="pie-legend">${pieLegend}</div>
+      </div>
     </div>
     <div class="survey-section">
       <h4>Dominant Persona — ${member.persona}</h4>

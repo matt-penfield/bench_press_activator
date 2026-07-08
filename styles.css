@@ -334,6 +334,52 @@ body {
   margin-bottom: 6px;
 }
 
+/* Pie Chart */
+.pie-chart-container {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.pie-chart svg {
+  display: block;
+}
+
+.pie-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pie-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pie-legend-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--slate-700);
+  min-width: 70px;
+  width: 70px;
+  flex-shrink: 0;
+}
+
+.pie-legend-bar {
+  height: 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.pie-legend-value {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--slate-500);
+  font-variant-numeric: tabular-nums;
+}
+
 .score-row {
   display: flex;
   align-items: center;
