@@ -418,6 +418,99 @@ body {
   flex: 1;
 }
 
+/* Persona Reference Cards */
+.persona-reference {
+  margin-top: 48px;
+}
+
+.reference-intro {
+  font-size: 0.95rem;
+  color: var(--slate-600);
+  line-height: 1.6;
+  margin-bottom: 24px;
+  max-width: 800px;
+}
+
+.persona-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.persona-card {
+  background: var(--white);
+  border-radius: var(--radius-card);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  border-left: 4px solid var(--slate-200);
+}
+
+.persona-card[data-persona="Activator"] { border-left-color: var(--slalom-coral); }
+.persona-card[data-persona="Confidant"] { border-left-color: var(--slalom-blue); }
+.persona-card[data-persona="Expert"] { border-left-color: var(--slalom-dark-blue); }
+.persona-card[data-persona="Debater"] { border-left-color: var(--slalom-purple); }
+.persona-card[data-persona="Realist"] { border-left-color: var(--slalom-cyan); }
+
+.persona-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.persona-card-quote {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 0.9rem;
+  color: var(--slate-500);
+}
+
+.persona-card-body {
+  margin-bottom: 16px;
+}
+
+.persona-card-body p {
+  font-size: 0.85rem;
+  color: var(--slate-700);
+  line-height: 1.6;
+  margin-bottom: 6px;
+}
+
+.persona-card-pairings h4 {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--slalom-blue);
+  margin-bottom: 8px;
+}
+
+.persona-card-pairings ul {
+  list-style: none;
+  padding: 0;
+}
+
+.persona-card-pairings li {
+  font-size: 0.85rem;
+  color: var(--slate-700);
+  line-height: 1.5;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.persona-card-pairings li:last-child {
+  border-bottom: none;
+}
+
+.persona-card-pairings .persona-badge {
+  font-size: 0.65rem;
+  padding: 2px 8px;
+  flex-shrink: 0;
+}
+
 /* Animations */
 @keyframes fadeUp {
   0% { opacity: 0; transform: translateY(14px); }
