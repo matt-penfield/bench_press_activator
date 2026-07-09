@@ -271,11 +271,36 @@ body {
   border-left: 3px solid var(--slate-300, #CBD5E1);
 }
 
-.client-facing-badge[data-persona="Confidant"] { background: var(--blue-light); border-left-color: var(--slalom-blue); }
-.client-facing-badge[data-persona="Activator"] { background: var(--coral-light); border-left-color: var(--slalom-coral); }
-.client-facing-badge[data-persona="Expert"] { background: var(--blue-light); border-left-color: var(--slalom-dark-blue); }
-.client-facing-badge[data-persona="Debater"] { background: var(--purple-light); border-left-color: var(--slalom-purple); }
-.client-facing-badge[data-persona="Realist"] { background: var(--cyan-light); border-left-color: var(--slalom-cyan); }
+/* Client-facing composite persona pill — 20 unique composite colors */
+/* Confidant group (blue family) */
+.client-facing-badge[data-composite="Ca"] { background: #E8F0FF; border-left-color: #0C62FB; }  /* Connector */
+.client-facing-badge[data-composite="Cr"] { background: #EEF2FF; border-left-color: #4F46E5; }  /* The Anchor */
+.client-facing-badge[data-composite="Cd"] { background: #F5F3FF; border-left-color: #7C3AED; }  /* Trusted Challenger */
+.client-facing-badge[data-composite="Ce"] { background: #DBEAFE; border-left-color: #002FAF; }  /* Trusted Advisor */
+
+/* Activator group (coral/warm family) */
+.client-facing-badge[data-composite="Ac"] { background: #FFDBDF; border-left-color: #FF4D5F; }  /* Rainmaker */
+.client-facing-badge[data-composite="Ar"] { background: #FFF0E0; border-left-color: #F97316; }  /* Disciplined Driver */
+.client-facing-badge[data-composite="Ad"] { background: #FFE4E4; border-left-color: #EF4444; }  /* Bold Instigator */
+.client-facing-badge[data-composite="Ae"] { background: #FFDDE5; border-left-color: #E11D48; }  /* Credible Catalyst */
+
+/* Realist group (cyan/teal family) */
+.client-facing-badge[data-composite="Rc"] { background: #D1F9FC; border-left-color: #1BE1F2; }  /* Honest Broker */
+.client-facing-badge[data-composite="Ra"] { background: #CFFAFE; border-left-color: #06B6D4; }  /* Pragmatic Driver */
+.client-facing-badge[data-composite="Rd"] { background: #E0F7FA; border-left-color: #0891B2; }  /* Straight Shooter */
+.client-facing-badge[data-composite="Re"] { background: #E0F2FE; border-left-color: #0E7490; }  /* The Validator */
+
+/* Debater group (purple family) */
+.client-facing-badge[data-composite="Dc"] { background: #F4F1FF; border-left-color: #A78BFA; }  /* Diplomatic Challenger */
+.client-facing-badge[data-composite="Da"] { background: #F3E8FF; border-left-color: #A855F7; }  /* The Disruptor */
+.client-facing-badge[data-composite="Dr"] { background: #EDE9FE; border-left-color: #7C3AED; }  /* Devil's Advocate */
+.client-facing-badge[data-composite="De"] { background: #E9D5FF; border-left-color: #6D28D9; }  /* Thought Leader */
+
+/* Expert group (deep blue/navy family) */
+.client-facing-badge[data-composite="Ec"] { background: #E6EAF5; border-left-color: #002FAF; }  /* Go-To Specialist */
+.client-facing-badge[data-composite="Ea"] { background: #DBEAFE; border-left-color: #1D4ED8; }  /* The Evangelist */
+.client-facing-badge[data-composite="Er"] { background: #E8EEFA; border-left-color: #2563EB; }  /* The Craftsman */
+.client-facing-badge[data-composite="Ed"] { background: #EFF6FF; border-left-color: #3B82F6; }  /* The Visionary */
 
 /* Clickable rows */
 .team-table tbody tr {
@@ -598,7 +623,7 @@ body {
 /* ---- Composite persona (member modal hero) ---- */
 .composite-hero {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: 14px;
   padding: 16px;
   border-radius: var(--radius-card);
@@ -622,6 +647,9 @@ body {
   padding: 10px 14px;
   border-radius: var(--radius-badge);
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .composite-code[data-persona="Confidant"] { background: var(--slalom-blue); }

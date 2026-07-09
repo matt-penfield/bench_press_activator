@@ -4,13 +4,13 @@ const teamMembers = [
   { name: "Casey Rivera", title: "Consultant", market: "Denver", persona: "Activator", secondaryPersona: "Debater" },
   { name: "Taylor Kim", title: "Principal", market: "Chicago", persona: "Realist", secondaryPersona: "Confidant" },
   { name: "Morgan Chen", title: "Sr. Director", market: "Seattle", persona: "Debater", secondaryPersona: "Activator" },
-  { name: "Riley Patel", title: "Associate Consultant", market: "Atlanta", persona: "Expert", secondaryPersona: "Realist" },
-  { name: "Sam Torres", title: "Director", market: "Denver", persona: "Confidant", secondaryPersona: "Realist" },
+  { name: "Riley Patel", title: "Asc. Consultant", market: "Atlanta", persona: "Expert", secondaryPersona: "Realist" },
+  { name: "Sam Torres", title: "Director", market: "Denver", persona: "Confidant", secondaryPersona: "Expert" },
   { name: "Drew Nakamura", title: "Sr. Principal", market: "Chicago", persona: "Activator", secondaryPersona: "Expert" },
-  { name: "Jamie Okafor", title: "Consultant", market: "Atlanta", persona: "Realist", secondaryPersona: "Activator" },
+  { name: "Jamie Okafor", title: "Consultant", market: "Atlanta", persona: "Realist", secondaryPersona: "Confidant" },
   { name: "Quinn Alvarez", title: "Sr. Consultant", market: "Seattle", persona: "Expert", secondaryPersona: "Debater" },
-  { name: "Avery Singh", title: "Associate Consultant", market: "Denver", persona: "Debater", secondaryPersona: "Confidant" },
-  { name: "Dakota Flores", title: "Principal", market: "Chicago", persona: "Activator", secondaryPersona: "Realist" },
+  { name: "Avery Singh", title: "Asc. Consultant", market: "Denver", persona: "Debater", secondaryPersona: "Confidant" },
+  { name: "Dakota Flores", title: "Principal", market: "Chicago", persona: "Activator", secondaryPersona: "Debater" },
   { name: "Hayden Park", title: "Consultant", market: "Atlanta", persona: "Confidant", secondaryPersona: "Activator" },
 ];
 
@@ -215,7 +215,7 @@ function renderTable() {
       <td>${m.market}</td>
       <td><span class="persona-badge" data-persona="${m.persona}">${m.persona}</span></td>
       <td><span class="persona-badge" data-persona="${m.secondaryPersona}">${m.secondaryPersona}</span></td>
-      <td><span class="client-facing-badge" data-persona="${m.persona}">${m.clientFacing}</span></td>
+      <td><span class="client-facing-badge" data-composite="${m.compositeCode}">${m.clientFacing}</span></td>
     </tr>
   `).join("");
 
@@ -455,7 +455,7 @@ const personaTextDark = { Realist: true, Debater: true };
 const blendedPersonas = {
   Confidant: {
     Activator: { name: "The Connector", description: "Deep client trust that opens doors, paired with the drive to turn those relationships into fresh pipeline and growth." },
-    Realist: { name: "Trusted Partner", description: "Relationships built on candor. Clients lean on them because they feel both cared for and told the truth." },
+    Realist: { name: "The Anchor", description: "Relationships built on candor. Clients lean on them because they feel both cared for and told the truth." },
     Debater: { name: "Trusted Challenger", description: "Uses hard-won trust as a license to push clients past their assumptions without ever fracturing the relationship." },
     Expert: { name: "Trusted Advisor", description: "Pairs genuine relationships with real credibility, so clients seek out their judgment on the decisions that matter most." },
   },
@@ -463,7 +463,7 @@ const blendedPersonas = {
     Confidant: { name: "The Rainmaker", description: "Generates pipeline through a wide, warm network — opportunities follow because people genuinely enjoy working with them." },
     Realist: { name: "Disciplined Driver", description: "Relentlessly creates opportunity but qualifies as they go, so all that momentum lands on the deals actually worth winning." },
     Debater: { name: "Bold Instigator", description: "Manufactures demand by provoking new thinking, sparking conversations that reframe what the client believes they need." },
-    Expert: { name: "Credible Hunter", description: "Opens doors on the strength of proven expertise, converting proactive outreach into engagements clients trust from day one." },
+    Expert: { name: "Credible Catalyst", description: "Opens doors on the strength of proven expertise, converting proactive outreach into engagements clients trust from day one." },
   },
   Realist: {
     Confidant: { name: "Honest Broker", description: "Delivers uncomfortable truths in a way that lands as care, protecting both the client's outcome and the relationship." },
@@ -661,7 +661,9 @@ function renderModel() {
 document.addEventListener("DOMContentLoaded", () => {
   // Derive each member's client-facing (composite) persona name for the table
   teamMembers.forEach(m => {
-    m.clientFacing = getPersonaType(m.persona, m.secondaryPersona).blendName;
+    const composite = getPersonaType(m.persona, m.secondaryPersona);
+    m.clientFacing = composite.blendName;
+    m.compositeCode = composite.code;
   });
 
   renderTable();
