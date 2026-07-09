@@ -7,15 +7,37 @@ A lightweight, static dashboard that lets leaders at a digital agency view their
 ## What It Does
 
 - Displays a **leader profile card** (name, role, market)
-- Shows a **sortable team table** with columns: Name, Title, Market, Dominant Persona, Secondary Persona
+- Shows a **sortable team table** with columns: Name, Title, Market, Dominant Persona, Secondary Persona, Client Facing
 - Each team member has a **dominant persona** and a **secondary persona** (Confidant, Activator, Realist, Debater, Expert)
+- Each member gets a **composite "client-facing" persona** (e.g. "Trusted Advisor", "Bold Instigator") derived from their dominant + secondary combination — 20 possible composites
+- Multiple team members can share the same composite persona
 - Click any **row** to open a **member detail modal** showing:
+  - Composite persona hero section with code badge (e.g. Ce, Ad) and blend name
+  - SVG radar chart visualizing scores across all 5 persona dimensions
   - Persona profile bar chart (percentage breakdown across all 5 personas, totaling 100%)
   - Dominant persona interpretation (identity, signals, risk, leadership takeaway, client impression)
   - Suggested pairings — complementary teammates with rationale
-- Click any **persona badge** in the table to open a **persona modal** showing:
-  - Core identity and characteristics of that persona
-  - Team members who have that persona (dominant or secondary)
+- **Persona reference section** below the table with:
+  - Introductory text explaining the core/wing/balance-point model
+  - Interactive persona model diagram
+  - 5 persona cards with descriptions
+  - Persona description modal on card click
+
+---
+
+## Composite Persona System
+
+Every team member's dominant + secondary persona produces one of 20 composite personas, each with a unique name, description, and color-coded badge. Composites are grouped by primary persona family:
+
+| Primary | Composites |
+|---------|-----------|
+| Confidant | The Connector (Ca), The Anchor (Cr), Trusted Challenger (Cd), Trusted Advisor (Ce) |
+| Activator | The Rainmaker (Ac), Disciplined Driver (Ar), Bold Instigator (Ad), Credible Catalyst (Ae) |
+| Realist | Honest Broker (Rc), Pragmatic Driver (Ra), Straight Shooter (Rd), The Validator (Re) |
+| Debater | Diplomatic Challenger (Dc), The Disruptor (Da), Devil's Advocate (Dr), Thought Leader (De) |
+| Expert | Go-To Specialist (Ec), The Evangelist (Ea), The Craftsman (Er), The Visionary (Ed) |
+
+Each composite badge has a unique color within its primary persona's color family (blues, corals, cyans, purples, navies).
 
 ---
 
@@ -31,11 +53,10 @@ The app simulates results from a 25-question behavioral assessment:
 ## File Structure
 
 ```
-├── index.html          # App shell — header, table, two modals
-├── app.js              # All logic: data, sorting, modal rendering, pairing engine
-├── styles.css          # Full styling (Bench Press design system tokens)
+├── index.html          # App shell — header, table, persona reference, two modals
+├── app.js              # All logic: data, sorting, modal rendering, composite system, radar chart
+├── styles.css          # Full styling (Bench Press design system tokens, 20 composite colors)
 ├── styleguide.md       # Design system reference (from Hackathon Hub)
-├── activator_data.xlsx # Source survey/persona definitions (reference only)
 ├── BRIEF.md            # Original product brief / requirements
 └── README              # This file
 ```
@@ -65,8 +86,10 @@ python -m http.server 8000
 |----------|-----------|
 | Static HTML (no framework) | Fast prototyping, zero build step, easy to share |
 | Data hardcoded in `app.js` | Swap the `teamMembers` array for an API call when ready |
-| Persona colors via `data-persona` attribute | CSS handles all color mapping — add new personas by adding a CSS rule |
+| 20 composite colors via `data-composite` | CSS handles all color mapping — each composite code (Ca, Cr, etc.) gets a unique badge color |
 | Survey results as % profile (sum to 100%) | Matches the real 25-question scoring model from the Activator framework |
+| Composite persona system | Dominant + secondary → one of 20 named composites with unique identity and color |
+| SVG radar chart in modal | Visualizes persona profile without any charting library |
 | Pairing logic in JS | Complementary persona mapping lives in `pairingRationale` — easy to tune |
 | CSS custom properties (design tokens) | All colors, radii, shadows, fonts defined in `:root` for easy theming |
 | Fixed table layout | Prevents column-width jumping when sorting |
@@ -86,6 +109,9 @@ Replace the `teamMembers` array at the top of `app.js` with a fetch call. Expect
   market: "string",
   persona: "Confidant" | "Activator" | "Realist" | "Debater" | "Expert",
   secondaryPersona: "Confidant" | "Activator" | "Realist" | "Debater" | "Expert",
+  // Derived at runtime:
+  // clientFacing: "Trusted Advisor"  (composite name from blendedPersonas)
+  // compositeCode: "Ce"             (primary initial + lowercase secondary initial)
   surveyResults: {          // optional — generated if missing
     Activator: number,      // percentage (all five sum to 100)
     Expert: number,
@@ -101,8 +127,10 @@ Replace the `teamMembers` array at the top of `app.js` with a fetch call. Expect
 1. Add the new persona name to the `personas` array in `app.js`
 2. Add a color entry to `personaColors` in `app.js`
 3. Add a description entry to `personaDescriptions` in `app.js`
-4. Add a CSS rule: `.persona-badge[data-persona="NewName"] { background: #HEX; }`
-5. Add pairing rationale in `pairingRationale`
+4. Add composite entries to `blendedPersonas` for all pairings with the new persona
+5. Add a CSS rule: `.persona-badge[data-persona="NewName"] { background: #HEX; }`
+6. Add CSS rules for each new composite: `.client-facing-badge[data-composite="Xn"] { ... }`
+7. Add pairing rationale in `pairingRationale`
 
 ### Changing the Leader Profile
 
