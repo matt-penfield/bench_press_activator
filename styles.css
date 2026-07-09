@@ -354,52 +354,6 @@ body {
   margin-bottom: 6px;
 }
 
-/* Pie Chart */
-.pie-chart-container {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.pie-chart svg {
-  display: block;
-}
-
-.pie-legend {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.pie-legend-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.pie-legend-label {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--slate-700);
-  min-width: 70px;
-  width: 70px;
-  flex-shrink: 0;
-}
-
-.pie-legend-bar {
-  height: 8px;
-  border-radius: 4px;
-  flex-shrink: 0;
-}
-
-.pie-legend-value {
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--slate-500);
-  font-variant-numeric: tabular-nums;
-}
-
 .score-row {
   display: flex;
   align-items: center;
@@ -450,6 +404,50 @@ body {
   min-width: 28px;
   text-align: right;
   font-variant-numeric: tabular-nums;
+}
+
+/* Radar (spider) chart */
+.radar-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 4px;
+}
+
+.radar-svg {
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+  overflow: visible;
+}
+
+.radar-grid {
+  fill: none;
+  stroke: var(--slate-200);
+  stroke-width: 1;
+}
+
+.radar-spoke {
+  stroke: var(--slate-200);
+  stroke-width: 1;
+}
+
+.radar-area {
+  fill: var(--slalom-cyan);
+  fill-opacity: 0.25;
+  stroke: var(--slalom-cyan);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.radar-dot {
+  stroke: #fff;
+  stroke-width: 1;
+}
+
+.radar-label {
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--slate-600);
 }
 
 /* Pairing Suggestions */
