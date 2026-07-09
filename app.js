@@ -251,6 +251,67 @@ function initSorting() {
   });
 }
 
+// Build an SVG radar (spider) chart from a persona-score map summing to ~100%
+function renderRadarChart(scores) {
+  const size = 300;
+  const cx = size / 2;
+  const cy = size / 2;
+  const radius = 95;
+  const maxScale = 50; // percent that maps to the outer ring
+  const axes = personas;
+  const n = axes.length;
+
+  const angleFor = i => (-90 + i * (360 / n)) * (Math.PI / 180);
+  const point = (i, frac) => {
+    const a = angleFor(i);
+    return {
+      x: cx + Math.cos(a) * radius * frac,
+      y: cy + Math.sin(a) * radius * frac,
+    };
+  };
+
+  const rings = [0.25, 0.5, 0.75, 1].map(frac => {
+    const pts = axes.map((_, i) => {
+      const pt = point(i, frac);
+      return `${pt.x.toFixed(1)},${pt.y.toFixed(1)}`;
+    }).join(" ");
+    return `<polygon points="${pts}" class="radar-grid" />`;
+  }).join("");
+
+  const spokes = axes.map((_, i) => {
+    const pt = point(i, 1);
+    return `<line x1="${cx}" y1="${cy}" x2="${pt.x.toFixed(1)}" y2="${pt.y.toFixed(1)}" class="radar-spoke" />`;
+  }).join("");
+
+  const dataPts = axes.map((persona, i) => {
+    const frac = Math.min((scores[persona] || 0) / maxScale, 1);
+    const pt = point(i, frac);
+    return `${pt.x.toFixed(1)},${pt.y.toFixed(1)}`;
+  }).join(" ");
+
+  const dots = axes.map((persona, i) => {
+    const frac = Math.min((scores[persona] || 0) / maxScale, 1);
+    const pt = point(i, frac);
+    return `<circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="3.5" fill="${personaColors[persona]}" class="radar-dot" />`;
+  }).join("");
+
+  const labels = axes.map((persona, i) => {
+    const pt = point(i, 1.2);
+    let anchor = "middle";
+    if (pt.x < cx - 5) anchor = "end";
+    else if (pt.x > cx + 5) anchor = "start";
+    return `<text x="${pt.x.toFixed(1)}" y="${pt.y.toFixed(1)}" text-anchor="${anchor}" dominant-baseline="middle" class="radar-label">${persona} ${scores[persona] || 0}%</text>`;
+  }).join("");
+
+  return `
+    <svg viewBox="0 0 ${size} ${size}" class="radar-svg" role="img" aria-label="Persona profile radar chart">
+      <g class="radar-grid-group">${rings}${spokes}</g>
+      <polygon points="${dataPts}" class="radar-area" />
+      <g class="radar-dots">${dots}</g>
+      <g class="radar-labels">${labels}</g>
+    </svg>`;
+}
+
 function openModal(member) {
   const overlay = document.getElementById("modal-overlay");
   document.getElementById("modal-name").textContent = member.name;
@@ -265,44 +326,6 @@ function openModal(member) {
   const pairings = getPairingSuggestions(member);
   const desc = personaDescriptions[member.persona];
   const composite = getPersonaType(member.persona, member.secondaryPersona);
-
-  // Sort personas by score descending for display
-  const sortedPersonas = Object.entries(scores)
-    .sort((a, b) => b[1] - a[1]);
-
-  // Generate SVG pie chart
-  const pieSize = 140;
-  const cx = pieSize / 2;
-  const cy = pieSize / 2;
-  const r = 60;
-  let cumulativePercent = 0;
-
-  function getSlicePath(percent) {
-    const startAngle = cumulativePercent * 3.6 * (Math.PI / 180);
-    cumulativePercent += percent;
-    const endAngle = cumulativePercent * 3.6 * (Math.PI / 180);
-    const largeArc = percent > 50 ? 1 : 0;
-    const x1 = cx + r * Math.sin(startAngle);
-    const y1 = cy - r * Math.cos(startAngle);
-    const x2 = cx + r * Math.sin(endAngle);
-    const y2 = cy - r * Math.cos(endAngle);
-    return `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} Z`;
-  }
-
-  const pieSlices = sortedPersonas.map(([key, val]) => {
-    const path = getSlicePath(val);
-    return `<path d="${path}" fill="${personaColors[key]}" stroke="white" stroke-width="1.5"/>`;
-  }).join("");
-
-  const pieSvg = `<svg width="${pieSize}" height="${pieSize}" viewBox="0 0 ${pieSize} ${pieSize}">${pieSlices}</svg>`;
-
-  const pieLegend = sortedPersonas.map(([key, val]) => `
-    <div class="pie-legend-item">
-      <span class="pie-legend-label">${key}</span>
-      <span class="pie-legend-bar" style="width:${val * 2}px; background:${personaColors[key]}"></span>
-      <span class="pie-legend-value">${val}%</span>
-    </div>
-  `).join("");
 
   body.innerHTML = `
     <div class="composite-hero" data-persona="${composite.primary}">
@@ -319,10 +342,9 @@ function openModal(member) {
     <p class="composite-description">${composite.blendDescription}</p>
     <div class="survey-section">
       <h4>Persona Profile — Survey Results</h4>
-      <p style="font-size:0.8rem; color:var(--slate-500); margin-bottom:12px;">Based on 25 behavioral questions. Percentage of responses aligned to each persona.</p>
-      <div class="pie-chart-container">
-        <div class="pie-chart">${pieSvg}</div>
-        <div class="pie-legend">${pieLegend}</div>
+      <p style="font-size:0.8rem; color:var(--slate-500); margin-bottom:12px;">Based on 25 behavioral questions. Each axis shows what percentage of responses aligned to that persona.</p>
+      <div class="radar-wrap">
+        ${renderRadarChart(scores)}
       </div>
     </div>
     <div class="survey-section">
